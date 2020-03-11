@@ -4,6 +4,8 @@ import re
 import subprocess
 from bs4 import BeautifulSoup
 from django.http import JsonResponse
+from .models import SeversHistory
+from django.utils import timezone
 
 
 # Create your views here.
@@ -56,8 +58,21 @@ def status_response(request, url):
     soup = BeautifulSoup(html_content, 'lxml')
     if soup.title.parent.name == 'head':
         final_response.update({'title': soup.title.string})
+    try:
+        image_find = soup.find("link", rel='icon')
+        final_response.update({'logo': image_find.get('href')})
+    except AttributeError:
+        pass
 
-    image_find = soup.find("link", rel='icon')
-    final_response.update({'logo': image_find.get('href')})
+    save_final_response = SeversHistory.objects.create(domain_name=str(url),
+                                                       server_information=final_response)
+    save_final_response.save()
+
+    items = []
+    for lr in SeversHistory.objects.all():
+        domain = lr.domain_name
+        info = lr.server_information
+        items.append({'domain_name': domain, 'info': info})
+        return JsonResponse(items, safe=False)
 
     return JsonResponse(final_response)
