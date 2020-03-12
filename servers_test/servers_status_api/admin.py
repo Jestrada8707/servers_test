@@ -1,6 +1,11 @@
 from django.contrib import admin
 from .models import SeversHistory
 
+
 # Register your models here.
 
-admin.site.register(SeversHistory)
+class SeversHistoryAdmin(admin.ModelAdmin):
+    readonly_fields = ('consultation_date',)
+
+
+admin.site.register(SeversHistory, SeversHistoryAdmin)
