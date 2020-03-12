@@ -32,6 +32,7 @@ def status_response(request, url):
     # Get the dictionary and values who return the consult
     get_result = requests.get(f'https://api.ssllabs.com/api/v3/analyze?host={url}')
     get_result_dic = get_result.json()
+    # This variable fake response for testing, because sometimes the server block
     """get_result_dic = json.loads(
     '{"host":"truora.com","port":443,"protocol":"http","isPublic":false,"status":"IN_PROGRESS","startTime":1583966769611,"engineVersion":"2.1.0","criteriaVersion":"2009q","endpoints":[{"ipAddress":"34.193.204.92","serverName":"redirect1.proxy-ssl.webflow.com","statusMessage":"Ready","grade":"C","gradeTrustIgnored":"A","hasWarnings":false,"isExceptional":false,"progress":100,"duration":90668,"delegation":1},{"ipAddress":"34.193.69.252","grade":"A+","serverName":"redirect2.proxy-ssl.webflow.com","statusMessage":"In progress","statusDetails":"TESTING_SUITES","statusDetailsMessage":"Determining available cipher suites","progress":62,"eta":11,"delegation":1}]}')"""
 
@@ -56,11 +57,13 @@ def status_response(request, url):
     country_regex = re.compile(r"Country:[\s]*([\w\s\n]+)")
     find = organization_regex.search(str(response_whois_ip))
     find_2 = country_regex.search(str(response_whois_ip))
-
-    s.update({
-        'owner': find.group(1),
-        'country': find_2.group(1)
-    })
+    try:
+        s.update({
+            'owner': find.group(1),
+            'country': find_2.group(1)
+        })
+    except AttributeError:
+        pass
 
     # Variable how contains all object with list of dic called servers
 
